@@ -1,6 +1,13 @@
 const cfg = require('./config');
 const categories = require('./documents');
 
+const DEFAULTS = {
+  DOCS_HEADER_IMAGE: 'https://i.postimg.cc/YCr6SqzZ/0ccv5GF8Pmc.png',
+  DOCS_FOOTER_IMAGE: 'https://i.postimg.cc/8zpRCPbD/pu-YSe51XWEw.png',
+  DOCS_EMOJI: '<:unknown:1533574438665195560>'
+};
+const opt = (k) => cfg[k] || DEFAULTS[k];
+
 const img = (url) => ({ type: 12, items: [{ media: { url } }] });
 
 function findDoc(code) {
@@ -19,19 +26,19 @@ function buildPortal() {
   const container = {
     type: 17,
     components: [
-      img(cfg.DOCS_HEADER_IMAGE),
+      img(opt('DOCS_HEADER_IMAGE')),
       { type: 14, spacing: 2 },
       {
         type: 10,
-        content: '# ' + cfg.DOCS_EMOJI + ' Documents & Forms\n>>> Welcome to the Florida State Government Documents & Form portal. ' +
-          'Please find the appropriate document or form. All forms are in PDF format and are able to be edited after downloading.'
+        content: '# ' + opt('DOCS_EMOJI') + ' Documents & Forms\n>>> Welcome to the Florida State Government Documents & Form portal. ' +
+          'Please find the appropriate document or form. All forms are in PDF format and are able to be edited after downloading. '
       }
     ]
   };
 
   for (const cat of categories) {
     container.components.push({ type: 14 });
-    container.components.push({ type: 10, content: '## ' + cat.heading });
+    container.components.push({ type: 10, content: '### ' + cat.heading });
     container.components.push({
       type: 1,
       components: [{
@@ -40,13 +47,17 @@ function buildPortal() {
         placeholder: cat.placeholder,
         min_values: 1,
         max_values: 1,
-        options: cat.items.map((i) => ({ label: i.label, value: i.code }))
+        options: cat.items.map((i) => {
+          const o = { label: i.label, value: i.code };
+          if (i.short) o.description = i.short.slice(0, 100);
+          return o;
+        })
       }]
     });
   }
 
   container.components.push({ type: 14, spacing: 2 });
-  container.components.push(img(cfg.DOCS_FOOTER_IMAGE));
+  container.components.push(img(opt('DOCS_FOOTER_IMAGE')));
 
   return { flags: 32768, components: [container] };
 }
@@ -62,14 +73,14 @@ function buildDocMessage(code) {
       components: [{
         type: 17,
         components: [
-          img(cfg.DOCS_HEADER_IMAGE),
+          img(opt('DOCS_HEADER_IMAGE')),
           { type: 14, spacing: 2 },
-          { type: 10, content: '# ' + cfg.DOCS_EMOJI + ' ' + item.label + '\n' },
+          { type: 10, content: '# ' + opt('DOCS_EMOJI') + ' ' + item.label + '\n' },
           { type: 10, content: item.desc },
           { type: 14, spacing: 2 },
           { type: 13, file: { url: 'attachment://' + safeName(item.file) } },
           { type: 14, spacing: 2 },
-          img(cfg.DOCS_FOOTER_IMAGE)
+          img(opt('DOCS_FOOTER_IMAGE'))
         ]
       }]
     },

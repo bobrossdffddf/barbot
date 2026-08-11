@@ -1,0 +1,14 @@
+# secrets - never commit
+config.js
+.env
+
+# runtime state
+barnumbers.json
+
+# dependencies
+node_modules/
+npm-debug.log*
+
+# os junk
+.DS_Store
+Thumbs.db
